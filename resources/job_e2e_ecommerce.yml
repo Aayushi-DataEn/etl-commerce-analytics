@@ -1,0 +1,69 @@
+resources:
+  jobs:
+    e2e_ecommerce_analytics:
+      name: e2e_ecommerce_analytics
+      tasks:
+        - task_key: ingestion_layer
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/ingestion/github_ingestion
+            source: WORKSPACE
+        - task_key: ds2b
+          depends_on:
+            - task_key: ingestion_layer
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/bronze/ds2b
+            source: WORKSPACE
+        - task_key: b2s_customers
+          depends_on:
+            - task_key: ds2b
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/silver/b2s_customers
+            source: WORKSPACE
+        - task_key: b2s_sales
+          depends_on:
+            - task_key: ds2b
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/silver/b2s_sales
+            source: WORKSPACE
+        - task_key: b2s_sales_orders
+          depends_on:
+            - task_key: ds2b
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/silver/b2s_sales_orders
+            source: WORKSPACE
+        - task_key: s2g_dim_date
+          depends_on:
+            - task_key: b2s_sales_orders
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/gold/s2g_d_date
+            source: WORKSPACE
+        - task_key: s2g_dim_orders
+          depends_on:
+            - task_key: b2s_sales_orders
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/gold/s2g_d_orders
+            source: WORKSPACE
+        - task_key: s2g_dim_product
+          depends_on:
+            - task_key: b2s_sales
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/gold/s2g_d_product
+            source: WORKSPACE
+        - task_key: s2g_fact_orders
+          depends_on:
+            - task_key: b2s_customers
+            - task_key: b2s_sales
+            - task_key: b2s_sales_orders
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/gold/s2g_fact_sales
+            source: WORKSPACE
+        - task_key: s2g_customers
+          depends_on:
+            - task_key: b2s_customers
+          notebook_task:
+            notebook_path: /Workspace/Users/aayushi.dataen@gmail.com/etl-commerce-analytics/src/gold/s2g_d_customer
+            source: WORKSPACE
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED
+
